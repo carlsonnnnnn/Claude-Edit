@@ -31,3 +31,30 @@ apt-get install fluidsynth fluid-soundfont-gm ffmpeg
 pip install mido
 python3 src/royal_music.py   # MIDI -> build/, audio -> out/
 ```
+
+## Package Combo – 30 s Remotion video
+
+`out/package-combo-30s.mp4` is 1080×1440, 30 fps, 900 frames, H.264 + AAC, built in Remotion (React + TypeScript) from `assets/package-combo/poster.png`. `out/final-frame.png` is frame 899, which holds on the poster layout. The one text change: the Royal row's third cell reads "+ 15% off + academic performance report + special price 1-on-1 sessions".
+
+| Time | Section (`package-combo/src/sections/`) |
+|---|---|
+| 0–3 s | `Background`, `GoldDust`, `Intro`: navy grid plate fades in, gold dust drifts up, logo and name fade in |
+| 3–6 s | `Title`: "Package Combo" bounces in, gold shine sweep; `Table` cell borders draw |
+| 6–26 s | `Table` rows slide in cell by cell; `Characters` rise in: scholar (warm glow), knight (metallic glint, "10%" pops), prince (crown sparkle), king (gold burst behind the throne, gold pulse on the Royal row) |
+| 26–28 s | `Finale` → `AvailableCard`: white card slides up, the four levels appear one by one |
+| 28–30 s | `Finale` → `ContactBar`: bar slides up, icons pop in, hold |
+
+The table and title text use League Spartan Bold, which matches the poster more closely than Poppins. The header is cut from the poster; the card and contact bar contents are cut from the poster too, so their text is pixel-exact. Characters are cut out of the painting, and they only rise, drift slightly and get light effects.
+
+Audio (`AudioMix.tsx`): `royal_fanfare_30s.mp3` (copied into `public/`) at full level, ducked to 30% under each voice line, faded out over the last second. Voice-over clips are read from `package-combo/src/vo.json`, which `src/package_combo_vo.py` writes.
+
+### Rebuild
+
+```
+pip install numpy scipy pillow edge-tts
+python3 src/package_combo_assets.py   # poster -> package-combo/public/ layers
+python3 src/package_combo_vo.py       # edge-tts voice-over -> assets/vo/, timing -> vo.json
+cd package-combo && npm install
+npm run render                        # -> out/package-combo-30s.mp4
+npm run still                         # -> out/final-frame.png
+```
