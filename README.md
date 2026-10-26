@@ -53,3 +53,22 @@ python3 scripts/compare.py ../build/so/stills/frame-899.png  # side-by-side and 
 ```
 
 If `assets/tutors/<name>.png` (isaac, ashraf, natasha, sharmila, claudia) exist, they are used instead of the poster cut-outs. If `assets/music.mp3` exists, it is added with a 1 s fade-out at the end.
+
+## Music
+
+`assets/music.mp3` (and the master, `out/subjects-offered-music.wav`) is a 30 s instrumental generated in code by `video/scripts/make_music.py`: 120 BPM, 4/4, D major (I–V–vi–IV), no vocals, mastered to -14 LUFS with true peak under -1 dBTP.
+
+| Time | Music |
+|---|---|
+| 0–3 s | Airy detuned-saw pad, rising bell arpeggio and noise shimmer. |
+| 3–8 s | Light pluck melody, soft claps, a shaker from 5 s; filtered-noise riser from 6.5 s. |
+| 8 s | Punchy hit (boom, kick, crash, G chord stab) for the title. |
+| 8–10 s | Snare build into the drop on the A chord. |
+| 10–25 s | Main groove: four-on-the-floor kick, claps, hats, bouncy octave bass, pluck + soft lead hook. Pad and bass duck under the kick. Tom fill into 15 s, snare fill into 20 s, crash on each. |
+| 25–28 s | Kick drops out, hats and claps thin, melody softens over G → Asus4 → A. |
+| 28–30 s | Final D major chord rings out and fades to silence at exactly 30.000 s. |
+
+```
+python3 video/scripts/make_music.py   # -> out/subjects-offered-music.wav, assets/music.mp3
+```
+
