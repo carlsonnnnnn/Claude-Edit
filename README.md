@@ -46,7 +46,18 @@ python3 src/royal_music.py   # MIDI -> build/, audio -> out/
 
 The table and title text use League Spartan Bold, which matches the poster more closely than Poppins. The header is cut from the poster; the card and contact bar contents are cut from the poster too, so their text is pixel-exact. Characters are cut out of the painting, and they only rise, drift slightly and get light effects.
 
-Audio (`AudioMix.tsx`): `royal_fanfare_30s.mp3` (copied into `public/`) at full level, ducked to 30% under each voice line, faded out over the last second. Voice-over clips are read from `package-combo/src/vo.json`, which `src/package_combo_vo.py` writes.
+Audio (`AudioMix.tsx`): `royal_fanfare_30s.mp3` (copied into `public/`) at full level, ducked to 30% under each voice line, faded out over the last second. Voice-over clips are read from `package-combo/src/vo.json`, which `src/package_combo_vo.py` writes. The voice is edge-tts `en-GB-RyanNeural` at pitch -2Hz. The script trims edge-tts's padding silence and normalises each clip to -16 LUFS.
+
+| Start | Line | Length | Rate |
+|---|---|---|---|
+| 0 s | Every great kingdom is built on knowledge. Welcome to Studyolution Academy's Package Combo. | 5.78 s | +1% |
+| 6 s | Begin as a Scholar: one subject group, with free notes and exercises. | 4.49 s | -5% |
+| 11 s | Rise as a Knight: three subject groups, ten percent off. | 4.25 s | -5% |
+| 16 s | Advance as a Noble: five subject groups, fifteen percent off. | 4.56 s | -5% |
+| 21 s | Claim the throne as Royal: special price one-on-ones and a performance report. | 4.54 s | -5% |
+| 26 s | For every level. Choose your path today. | 3.50 s | -5% |
+
+The last two lines are shorter than in the brief. As first written they needed about 12.3 s between 21 s and 30 s, even at +10%.
 
 ### Rebuild
 

@@ -16,6 +16,7 @@ import subprocess
 import sys
 
 import edge_tts
+import numpy as np
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 VO_DIR = os.path.join(ROOT, "assets", "vo")
@@ -34,8 +35,9 @@ LINES = [
     (6, "02_scholar", "Begin as a Scholar: one subject group, with free notes and exercises."),
     (11, "03_knight", "Rise as a Knight: three subject groups, ten percent off."),
     (16, "04_noble", "Advance as a Noble: five subject groups, fifteen percent off."),
-    (21, "05_royal", "Or claim the throne as Royal: five groups, two special price one-on-one sessions, and a performance report."),
-    (26, "06_levels", "For every level: K S S R, K S S M, and international. Choose your path today."),
+    # Shortened from the brief: the full lines need ~12.3 s between 21 s and 30 s even at +10%.
+    (21, "05_royal", "Claim the throne as Royal: special price one-on-ones and a performance report."),
+    (26, "06_levels", "For every level. Choose your path today."),
 ]
 
 
@@ -47,6 +49,29 @@ def duration(path):
     return float(out.strip())
 
 
+LEAD_PAD = 0.05  # s of silence kept before / after the speech
+TAIL_PAD = 0.15
+
+
+def trim_silence(path):
+    """edge-tts pads clips with ~0.2 s before and ~0.8 s after the speech; cut that down."""
+    raw = subprocess.run(["ffmpeg", "-v", "error", "-i", path, "-f", "f32le", "-ac", "1", "-ar", "24000", "-"],
+                         capture_output=True, check=True).stdout
+    x = np.frombuffer(raw, np.float32)
+    loud = np.nonzero(np.abs(x) > 0.003)[0]
+    t0 = max(0.0, loud[0] / 24000 - LEAD_PAD)
+    t1 = min(len(x) / 24000, loud[-1] / 24000 + TAIL_PAD)
+    tmp = path + ".tmp.mp3"
+    subprocess.run(["ffmpeg", "-v", "error", "-y", "-ss", f"{t0:.3f}", "-to", f"{t1:.3f}", "-i", path,
+                    "-af", "afade=t=out:st=%.3f:d=0.08" % (t1 - t0 - 0.08), "-c:a", "libmp3lame", "-b:a", "96k", tmp],
+                   check=True)
+    os.replace(tmp, path)
+    # edge-tts comes out around -21 dB; bring speech to -16 LUFS so it clears the ducked music
+    subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", path, "-af", "loudnorm=I=-16:TP=-1.5:LRA=7,aresample=24000",
+                    "-c:a", "libmp3lame", "-b:a", "96k", tmp], check=True)
+    os.replace(tmp, path)
+
+
 async def synth(text, rate, path):
     kw = {}
     proxy = os.environ.get("HTTPS_PROXY") or os.environ.get("https_proxy")
@@ -54,6 +79,7 @@ async def synth(text, rate, path):
         kw["proxy"] = proxy
     comm = edge_tts.Communicate(text, VOICE, rate=f"{rate:+d}%", pitch=PITCH, **kw)
     await comm.save(path)
+    trim_silence(path)
 
 
 async def main(respell):

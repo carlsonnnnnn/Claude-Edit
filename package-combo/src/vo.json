@@ -1,1 +1,32 @@
-[]
+[
+ {
+  "file": "01_intro.mp3",
+  "start": 0,
+  "duration": 5.784
+ },
+ {
+  "file": "02_scholar.mp3",
+  "start": 6,
+  "duration": 4.488
+ },
+ {
+  "file": "03_knight.mp3",
+  "start": 11,
+  "duration": 4.248
+ },
+ {
+  "file": "04_noble.mp3",
+  "start": 16,
+  "duration": 4.56
+ },
+ {
+  "file": "05_royal.mp3",
+  "start": 21,
+  "duration": 4.536
+ },
+ {
+  "file": "06_levels.mp3",
+  "start": 26,
+  "duration": 3.504
+ }
+]
