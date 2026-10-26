@@ -21,3 +21,13 @@ python3 src/layers.py   # cut-outs and clean background plates -> build/
 python3 src/render.py   # video -> out/studyolution_promo.mp4
 python3 src/render.py --stills   # preview frames -> build/stills/
 ```
+
+## Royal fanfare music bed
+
+`out/royal_fanfare_30s.wav` (24-bit 48 kHz) and `.mp3` are a 30 s instrumental for a royal-themed promo: D major, 100 BPM, no vocals. It moves from an intro (0–3 s) to a brass fanfare (3–6 s), harpsichord and pizzicato (6–11 s), a march (11–16 s), a string swell (16–21 s), the climax with a cymbal hit at 21 s (21–26 s) and a final chord that is silent by 30 s. The mix leaves a pocket in the mid-range for voice-over, at about -16 LUFS.
+
+```
+apt-get install fluidsynth fluid-soundfont-gm ffmpeg
+pip install mido
+python3 src/royal_music.py   # MIDI -> build/, audio -> out/
+```
