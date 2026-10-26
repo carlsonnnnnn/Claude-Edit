@@ -3,6 +3,7 @@
     pip install edge-tts
     python3 src/package_combo_vo.py              # writes assets/vo/*.mp3 + package-combo/src/vo.json
     python3 src/package_combo_vo.py --respell    # say "Study-olution" if the plain name sounds wrong
+    python3 src/package_combo_vo.py --lang bm    # Bahasa Malaysia -> assets/vo/bm/ + package-combo/src/vo_bm.json
 
 Each clip must end before the next line starts. A clip that runs long is regenerated
 for that line only at a faster rate, never above +10%.
@@ -40,6 +41,24 @@ LINES = [
     (26, "06_levels", "For every level. Choose your path today."),
 ]
 
+# Bahasa Malaysia (ms-MY, not Indonesian): peratus, diskaun, percuma, laluan, peringkat.
+# Package names stay in English to match the screen.
+LINES_BM = [
+    (0, "01_intro", "Kerajaan agung dibina atas ilmu. Selamat datang ke Pakej Kombo Studyolution Academy."),
+    (6, "02_scholar", "Mulakan sebagai Scholar: satu kumpulan subjek, dengan nota dan latihan percuma."),
+    (11, "03_knight", "Bangkit sebagai Knight: tiga kumpulan subjek, diskaun sepuluh peratus."),
+    (16, "04_noble", "Maju sebagai Noble: lima kumpulan subjek, diskaun lima belas peratus."),
+    (21, "05_royal", "Jadilah Royal: sesi individu harga istimewa dan laporan prestasi."),
+    (26, "06_levels", "Untuk semua peringkat. Pilih laluan anda hari ini."),
+]
+
+LANGS = {
+    "en": dict(voice=VOICE, lines=LINES, vo_dir=VO_DIR, pub=PUB_VO, manifest=MANIFEST),
+    "bm": dict(voice="ms-MY-OsmanNeural", lines=LINES_BM, vo_dir=os.path.join(VO_DIR, "bm"),
+               pub=os.path.join(ROOT, "package-combo", "public", "vo_bm"),
+               manifest=os.path.join(ROOT, "package-combo", "src", "vo_bm.json")),
+}
+
 
 def duration(path):
     out = subprocess.run(
@@ -72,49 +91,53 @@ def trim_silence(path):
     os.replace(tmp, path)
 
 
-async def synth(text, rate, path):
+async def synth(text, rate, path, voice=VOICE):
     kw = {}
     proxy = os.environ.get("HTTPS_PROXY") or os.environ.get("https_proxy")
     if proxy:
         kw["proxy"] = proxy
-    comm = edge_tts.Communicate(text, VOICE, rate=f"{rate:+d}%", pitch=PITCH, **kw)
+    comm = edge_tts.Communicate(text, voice, rate=f"{rate:+d}%", pitch=PITCH, **kw)
     await comm.save(path)
     trim_silence(path)
 
 
-async def main(respell):
-    os.makedirs(VO_DIR, exist_ok=True)
-    os.makedirs(PUB_VO, exist_ok=True)
+async def main(respell, lang):
+    cfg = LANGS[lang]
+    lines = cfg["lines"]
+    os.makedirs(cfg["vo_dir"], exist_ok=True)
+    os.makedirs(cfg["pub"], exist_ok=True)
     manifest, report, ok = [], [], True
-    for i, (start, name, text) in enumerate(LINES):
+    for i, (start, name, text) in enumerate(lines):
         if respell:
             text = text.replace("Studyolution", "Study-olution")
-        nxt = LINES[i + 1][0] if i + 1 < len(LINES) else END
+        nxt = lines[i + 1][0] if i + 1 < len(lines) else END
         limit = nxt - start - GAP
-        path = os.path.join(VO_DIR, f"{name}.mp3")
+        path = os.path.join(cfg["vo_dir"], f"{name}.mp3")
         rate = BASE_RATE
-        await synth(text, rate, path)
+        await synth(text, rate, path, cfg["voice"])
         d = duration(path)
         while d > limit and rate < MAX_RATE:
             # jump close to the needed rate, then creep up 1% at a time
             need = int((1 + rate / 100) * d / limit * 100 - 100) + 1
             rate = min(MAX_RATE, max(rate + 1, need))
-            await synth(text, rate, path)
+            await synth(text, rate, path, cfg["voice"])
             d = duration(path)
         fits = d <= limit
         ok &= fits
-        shutil.copyfile(path, os.path.join(PUB_VO, f"{name}.mp3"))
+        shutil.copyfile(path, os.path.join(cfg["pub"], f"{name}.mp3"))
         manifest.append({"file": f"{name}.mp3", "start": start, "duration": round(d, 3)})
         report.append(f"{start:>4.0f}s  {name:<11} {d:5.2f}s  (room {limit:4.2f}s, rate {rate:+d}%)"
                       + ("" if fits else "  ** STILL TOO LONG **"))
-    with open(MANIFEST, "w") as f:
+    with open(cfg["manifest"], "w") as f:
         json.dump(manifest, f, indent=1)
     print("\n".join(report))
-    print("manifest:", MANIFEST)
+    print("manifest:", cfg["manifest"])
     return 0 if ok else 2
 
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--respell", action="store_true", help='use "Study-olution" in the intro line')
-    sys.exit(asyncio.run(main(ap.parse_args().respell)))
+    ap.add_argument("--lang", choices=sorted(LANGS), default="en", help="en (default) or bm (Bahasa Malaysia)")
+    args = ap.parse_args()
+    sys.exit(asyncio.run(main(args.respell, args.lang)))

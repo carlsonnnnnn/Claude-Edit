@@ -1,6 +1,6 @@
 import React from 'react';
 import {AbsoluteFill} from 'remotion';
-import {AudioMix} from './sections/AudioMix';
+import {AudioMix, Lang} from './sections/AudioMix';
 import {Background} from './sections/Background';
 import {Characters} from './sections/Characters';
 import {AvailableCard, ContactBar, Floor} from './sections/Finale';
@@ -9,7 +9,7 @@ import {Intro} from './sections/Intro';
 import {Table} from './sections/Table';
 import {Title} from './sections/Title';
 
-export const PackageCombo: React.FC = () => (
+export const PackageCombo: React.FC<{lang: Lang}> = ({lang}) => (
   <AbsoluteFill style={{backgroundColor: '#08102b'}}>
     <Background />
     <GoldDust layer="back" />
@@ -21,6 +21,6 @@ export const PackageCombo: React.FC = () => (
     <AvailableCard />
     <ContactBar />
     <GoldDust layer="front" />
-    <AudioMix />
+    <AudioMix lang={lang} />
   </AbsoluteFill>
 );

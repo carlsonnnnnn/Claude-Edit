@@ -59,6 +59,24 @@ Audio (`AudioMix.tsx`): `royal_fanfare_30s.mp3` (copied into `public/`) at full 
 
 The last two lines are shorter than in the brief. As first written they needed about 12.3 s between 21 s and 30 s, even at +10%.
 
+### Bahasa Malaysia version
+
+`out/package-combo-30s-bm.mp4` (composition `PackageComboBM`) has the same picture and music, with a Bahasa Malaysia voice-over by the Malaysian voice `ms-MY-OsmanNeural`, not an Indonesian `id-ID` one. The package names stay in English to match the screen.
+
+| Start | Line | Length | Rate |
+|---|---|---|---|
+| 0 s | Kerajaan agung dibina atas ilmu. Selamat datang ke Pakej Kombo Studyolution Academy. | 5.81 s | +8% |
+| 6 s | Mulakan sebagai Scholar: satu kumpulan subjek, dengan nota dan latihan percuma. | 4.85 s | +8% |
+| 11 s | Bangkit sebagai Knight: tiga kumpulan subjek, diskaun sepuluh peratus. | 4.73 s | -5% |
+| 16 s | Maju sebagai Noble: lima kumpulan subjek, diskaun lima belas peratus. | 4.82 s | +1% |
+| 21 s | Jadilah Royal: sesi individu harga istimewa dan laporan prestasi. | 4.78 s | +1% |
+| 26 s | Untuk semua peringkat. Pilih laluan anda hari ini. | 3.82 s | +8% |
+
+```
+python3 src/package_combo_vo.py --lang bm   # -> assets/vo/bm/, package-combo/src/vo_bm.json
+cd package-combo && npm run render:bm       # -> out/package-combo-30s-bm.mp4
+```
+
 ### Rebuild
 
 ```
